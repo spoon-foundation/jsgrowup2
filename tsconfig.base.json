@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": [
+    "src/*",
+    "src/tables/by_day/*",
+    "src/tables/by_month/*",
+    "src/test/*"
+  ]
+}
