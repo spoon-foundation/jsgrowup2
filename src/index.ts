@@ -192,7 +192,8 @@ export class Observation {
       null
   */
   protected validateT(args: {t?: Decimal, lower?: number, upper?: number, msg?: string}) {
-    let { t, lower, upper, msg } = args
+    let { t, msg } = args
+    const { lower, upper } = args
     msg = msg ? msg : `Range is ${lower} to ${upper}`
     t = t ? t : this.t
     if (!t && t != new Decimal(0)) {
@@ -316,7 +317,7 @@ export class Observation {
       for children under 2 years. Defaults to false.
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
    */
-  async lengthOrHeightForAge(measurement: number, recumbent: Boolean=false) {
+  async lengthOrHeightForAge(measurement: number, recumbent: boolean=false) {
     this.validateT({ lower: 0, upper: 19*365, msg: "Range is birth to 19 years." })
     let y = this.validateMeasurement(measurement, 10, 200)
     if (this.t.gte(365 * 2) && recumbent) {

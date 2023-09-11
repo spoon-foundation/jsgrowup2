@@ -1,7 +1,7 @@
 import {describe, expect, test} from '@jest/globals';
 import { Decimal } from "decimal.js"
 
-import { SexSpecification, MALE, FEMALE, Observation } from "../index"
+import { Observation } from "../index"
 
 // This file is derived from the R implementation of iGrowup. We're trusting
 // its z score values. It's a CSV with erratically named columns, so we
@@ -16,7 +16,7 @@ import { DATA as SPOON_DATA } from "./data_spoon"
 // How close do we want our results to match other's?
 const DELTA = 0.1
 
-let filteredData: Array<Object>
+let filteredData: Array<object>
 
 // Return a function that can be passed to Array.filter to winnow down our dataset
 // to be appropriate for a given test.
@@ -45,15 +45,15 @@ describe("Arm Circumference for Age", () => {
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.armCircumferenceForAge(y)
     let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
     const obsFromAgeDays = new Observation(row.sex, { ageInDays: row.ageInDays })
     receivedZScore = await obsFromAgeDays.armCircumferenceForAge(y)
     delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
-  let dataFilter = getDataFilter("acfaZ", "armCircumference", 3, 12 * 19)
+  const dataFilter = getDataFilter("acfaZ", "armCircumference", 3, 12 * 19)
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('acfa, WHO data, row $id', testArmCircumferenceForAge)
 })
@@ -67,15 +67,15 @@ describe("BMI for Age", () => {
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.bmiForAge(y)
     let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
     const obsFromAgeDays = new Observation(row.sex, { ageInDays: row.ageInDays })
     receivedZScore = await obsFromAgeDays.bmiForAge(y)
     delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
-  let dataFilter = getDataFilter("bmifaZ", "bmi", 0, 12 * 19)
+  const dataFilter = getDataFilter("bmifaZ", "bmi", 0, 12 * 19)
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('bmifa, WHO data, row $id', testBmiForAge)
 
@@ -89,7 +89,7 @@ describe("BMI for Age", () => {
     const receivedZScore = await observation.bmiForAge(y)
     const expectedZScore = row.bmifaZ == "" ? row.bmifaZ2 : row.bmifaZ
     const delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   filteredData = SPOON_DATA.filter(dataFilter)
@@ -105,15 +105,15 @@ describe("Head Circumference for Age", () => {
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.headCircumferenceForAge(y)
     let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
     const obsFromAgeDays = new Observation(row.sex, { ageInDays: row.ageInDays })
     receivedZScore = await obsFromAgeDays.headCircumferenceForAge(y)
     delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
-  let dataFilter = getDataFilter("hcfaZ", "headCircumference", 0, 12 * 5)
+  const dataFilter = getDataFilter("hcfaZ", "headCircumference", 0, 12 * 5)
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('hcfa, WHO data, row $id', testHeadCircumferenceForAge)
 
@@ -128,7 +128,7 @@ describe("Head Circumference for Age", () => {
     const observation = new Observation(row.sex, ageSpec)
     const receivedZScore = await observation.headCircumferenceForAge(y)
     const delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   filteredData = SPOON_DATA.filter(dataFilter)
@@ -144,18 +144,18 @@ describe("Weight for Age", () => {
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.weightForAge(y)
     let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
     const obsFromAgeDays = new Observation(row.sex, { ageInDays: row.ageInDays })
     receivedZScore = await obsFromAgeDays.weightForAge(y)
     delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   // Set the filter to be slightly less than 12 months * 10 years bc there's
   // a sample where the age in months is less than 120 but the age in days
   // exceeds the threshold.
-  let dataFilter = getDataFilter("wfaZ", "weight", 0, 12 * 9.9)
+  const dataFilter = getDataFilter("wfaZ", "weight", 0, 12 * 9.9)
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('wfa, WHO data, row $id', testWeightForAge)
 
@@ -168,9 +168,9 @@ describe("Weight for Age", () => {
       dateOfObservation: new Date(row.dateOfObservation),
     }
     const observation = new Observation(row.sex, ageSpec)
-    let receivedZScore = await observation.weightForAge(y)
-    let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    const receivedZScore = await observation.weightForAge(y)
+    const delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   filteredData = SPOON_DATA.filter(dataFilter).filter(row => row.ageInMonths < 120)
@@ -186,16 +186,16 @@ describe("Length/height for Age", () => {
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.lengthOrHeightForAge(y, row.lOrH == "l")
     let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
     const obsFromAgeDays = new Observation(row.sex, { ageInDays: row.ageInDays })
     receivedZScore = await obsFromAgeDays.lengthOrHeightForAge(y, row.lOrH == "l")
     delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
   }
 
-  let dataFilter = getDataFilter("lfaZ", "height", 0, 12 * 19)
+  const dataFilter = getDataFilter("lfaZ", "height", 0, 12 * 19)
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('lfa, WHO data, row $id', testLengthOrHeightForAge)
 
@@ -208,7 +208,7 @@ describe("Length/height for Age", () => {
       dateOfObservation: new Date(row.dateOfObservation),
     }
     const observation = new Observation(row.sex, ageSpec)
-    let receivedZScore = await observation.lengthOrHeightForAge(y, row.lOrH == "l")
+    const receivedZScore = await observation.lengthOrHeightForAge(y, row.lOrH == "l")
     const delta = new Decimal(receivedZScore)
       .minus(expectedZScore)
       .absoluteValue()
@@ -241,12 +241,12 @@ describe("Weight for Height", () => {
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.weightForHeight(weight, height)
     let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
     const obsFromAgeDays = new Observation(row.sex, { ageInDays: row.ageInDays })
     receivedZScore = await obsFromAgeDays.weightForHeight(weight, height)
     delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   async function testWeightForHeight2(row: any) {
@@ -261,7 +261,7 @@ describe("Weight for Height", () => {
     const observation = new Observation(row.sex, ageSpec)
     const receivedZScore = await observation.weightForHeight(weight, height)
     const delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   function dataFilter (row: any) {
@@ -303,12 +303,12 @@ describe("Weight for Length", () => {
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.weightForLength(weight, height)
     let delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
 
     const obsFromAgeDays = new Observation(row.sex, { ageInDays: row.ageInDays })
     receivedZScore = await obsFromAgeDays.weightForLength(weight, height)
     delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   async function testWeightForLength2(row: any) {
@@ -323,7 +323,7 @@ describe("Weight for Length", () => {
     const observation = new Observation(row.sex, ageSpec)
     const receivedZScore = await observation.weightForLength(weight, height)
     const delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
-    expect(delta).toBeLessThanOrEqual(0.1)
+    expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
   function dataFilter (row: any) {
