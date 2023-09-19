@@ -1,15 +1,13 @@
 {
   "name": "jsgrowup2",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Calculate z scores of anthropometric measurements based on WHO child growth standards",
-  "main": "dist/cjs/index.js",
-  "types": "dist/cjs/types/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "test": "jest",
     "clean": "rm -rf ./dist",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc -p ./tsconfig.esm.json && mv dist/esm/index.js dist/esm/index.mjs",
-    "build:cjs": "tsc -p ./tsconfig.cjs.json && mv dist/cjs/index.js dist/cjs/index.cjs",
+    "build": "npm run clean && npm run build:esm && echo '{\"type\": \"module\"}' > dist/package.json",
+    "build:esm": "tsc -p ./tsconfig.esm.json && mv dist/index.js dist/index.mjs",
     "prepack": "npm run build",
     "lint": "eslint . --ext .ts"
   },
@@ -20,18 +18,14 @@
   "repository": "https://github.com/spoon-foundation/jsgrowup2.git",
   "license": "MIT",
   "private": false,
-  "files": [
-    "dist/**/*"
-  ],
+  "files": ["dist", "LICENSE", "README.md", "package.json", "CHANGELOG.md"],
+  "module": "es6",
+  "type": "module",
   "exports": {
     ".": {
       "import": {
         "types": "./dist/types/index.d.ts",
         "default": "./dist/index.mjs"
-      },
-      "require": {
-        "types": "./dist/cjs/types/index.d.ts",
-        "default": "./dist/cjs/index.js"
       }
     }
   },
