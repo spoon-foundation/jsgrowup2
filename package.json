@@ -19,16 +19,8 @@
   "license": "MIT",
   "private": false,
   "files": ["dist", "LICENSE", "README.md", "package.json", "CHANGELOG.md"],
-  "module": "es6",
+  "main": "dist/index.mjs",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/types/index.d.ts",
-        "default": "./dist/index.mjs"
-      }
-    }
-  },
   "devDependencies": {
     "@types/jest": "^29.5.4",
     "@typescript-eslint/eslint-plugin": "^6.7.0",

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
     "strict": true,
     "allowJs": true,
     "declaration": true,
@@ -7,8 +8,6 @@
   },
   "include": [
     "src/*",
-    "src/tables/by_day/*",
-    "src/tables/by_month/*",
     "src/test/*"
   ]
 }

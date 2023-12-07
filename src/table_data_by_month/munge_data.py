@@ -5,6 +5,7 @@ For each of the WHO data files, parse, translate, and save each out to a new
 data structure (a new module per file).
 """
 import csv
+import json
 
 MALE = "1"
 FEMALE = "2"
@@ -56,7 +57,7 @@ def parse_files(file_names):
 # For ages (0-5) where we already have daily data, we ignore their monthly
 # versions.
 output_input = (
-    ("bmifa.ts", (
+    ("bmifa", (
         # "bmi_boys_0_2_zcores.txt",
         # "bmi_boys_2_5_zscores.txt",
         "bmi_boys_z_WHO2007_exp.txt",
@@ -70,7 +71,7 @@ output_input = (
     #     "tab_hcfa_girls_z_0_5.txt",
     #     )
     # ),
-    ("lfa.ts", (
+    ("lfa", (
         "hfa_boys_z_WHO2007_exp.txt",
         "hfa_girls_z_WHO2007_exp.txt",
         # "lhfa_boys_0_2_zscores.txt",
@@ -89,7 +90,7 @@ output_input = (
     #     "tab_tsfa_girls_z_3_5.txt",
     #     )
     # ),
-    ("wfa.ts", (
+    ("wfa", (
         # "wfa_boys_0_5_zscores.txt",
         "wfa_boys_z_WHO2007_exp.txt",
         # "wfa_girls_0_5_zscores.txt",
@@ -114,14 +115,15 @@ export const DATA = {
 
 for out_fname, in_fnames in output_input:
     parsed = parse_files(in_fnames)
-    with open("../%s" % out_fname, "w") as out_file:
-        print(template, file=out_file)
-        for sex, months in parsed.items():
-            print("  %s: { " % sex, file=out_file)
-            for month, rows in months.items():
-                print("    %s: { " % month, end="", file=out_file)
-                for key, value in rows.items():
-                    print(f"{key}: new Decimal('{value}'), ", end="", file=out_file)
-                print(" }, ", file=out_file)
-            print(" }, ", file=out_file)
-        print(" }", file=out_file)
+    with open(f"../by_month_{out_fname}.json", "w") as out_file:
+        print(json.dumps(parsed), file=out_file)
+        # print(template, file=out_file)
+        # for sex, months in parsed.items():
+        #     print("  %s: { " % sex, file=out_file)
+        #     for month, rows in months.items():
+        #         print("    %s: { " % month, end="", file=out_file)
+        #         for key, value in rows.items():
+        #             print(f"{key}: new Decimal('{value}'), ", end="", file=out_file)
+        #         print(" }, ", file=out_file)
+        #     print(" }, ", file=out_file)
+        # print(" }", file=out_file)

@@ -58,7 +58,7 @@ export class Observation {
       return
     }
     throw new Error(
-      "'age' parameter must provide one of the following properties: " + 
+      "'age' parameter must provide one of the following properties: " +
       "ageInDays, ageInMonths, or dob AND dateOfObservation"
     )
   }
@@ -74,6 +74,7 @@ export class Observation {
     let tableIndex: number
     let modulePath: string
     let isAgeBased = true
+    let data
     if (length == undefined) {
       t = new Decimal(this.t)
       tableIndex = t.floor().toNumber()
@@ -83,18 +84,19 @@ export class Observation {
       isAgeBased = false
     }
     if (!isAgeBased || t.lte(1856)) {
-      modulePath = `./tables/by_day/${tableName}`
+      data = await import(`./by_day_${tableName}.json`)
     } else {
       // Must be an age-based metric for an age over 5 years. Round age (in days) to nearest month.
-      tableIndex = t.dividedBy(365/12).floor().toNumber()
-      modulePath = `./tables/by_month/${tableName}`
+      tableIndex = t.dividedBy(365 / 12).floor().toNumber()
+      data = await import(`./by_month_${tableName}.json`)
     }
-    const { DATA } = await import(modulePath)
-    const result = DATA[this.sex][tableIndex]
-    if (result) {
-      return result
-      }
-    throw new Error(`t value out of range or not found (${t.toNumber()})`)
+    const result = data[this.sex][tableIndex]
+    if (!result) {
+      throw new Error(`t value out of range or not found (${t.toNumber()})`)
+    }
+    const lms = ["l", "m", "s"]
+    lms.forEach(char => result[char] = new Decimal(result[char]))
+    return result
   }
 
   /*
@@ -134,7 +136,7 @@ export class Observation {
     const denominator = s.times(l)
     const zScore = numerator.dividedBy(denominator)
     return zScore
-    }
+  }
 
   /* Adjust first-pass z_score and return new value.
 
@@ -191,7 +193,7 @@ export class Observation {
   Returns:
       null
   */
-  protected validateT(args: {t?: Decimal, lower?: number, upper?: number, msg?: string}) {
+  protected validateT(args: { t?: Decimal, lower?: number, upper?: number, msg?: string }) {
     let { t, msg } = args
     const { lower, upper } = args
     msg = msg ? msg : `Range is ${lower} to ${upper}`
@@ -224,28 +226,28 @@ export class Observation {
   @returns {Decimal} measurement value
   */
   protected validateMeasurement(measurement: number, lower: number, upper: number, msg?: string) {
-      let y: Decimal
-      if (!msg) {
-        msg = `Range is ${lower} to ${upper}`
-      }
-      if (!measurement) {
-        throw new Error(`No measurement supplied. ${msg}`)
-      }
+    let y: Decimal
+    if (!msg) {
+      msg = `Range is ${lower} to ${upper}`
+    }
+    if (!measurement) {
+      throw new Error(`No measurement supplied. ${msg}`)
+    }
 
-      try {
-        y = new Decimal(measurement)
-      } catch {
-        throw new Error("Measurement must be numeric.")
-      }
+    try {
+      y = new Decimal(measurement)
+    } catch {
+      throw new Error("Measurement must be numeric.")
+    }
 
-      msg = `Measurement value ${measurement} outside of range. ${msg}`
-      if (lower && y.lt(lower)) {
-        throw new Error(msg)
-      }
-      if (upper && y.gt(upper)) {
-        throw new Error(msg)
-      }
-      return y
+    msg = `Measurement value ${measurement} outside of range. ${msg}`
+    if (lower && y.lt(lower)) {
+      throw new Error(msg)
+    }
+    if (upper && y.gt(upper)) {
+      throw new Error(msg)
+    }
+    return y
   }
 
   /* Calculate and return a z-score.
@@ -260,9 +262,9 @@ export class Observation {
   protected async getZScore(table_name: string, y: Decimal, t?: Decimal): Promise<string> {
     const { l, m, s } = await this.getBoxCoxVariables(table_name, t)
     let zScore = this.getFirstPassZScore(y, l, m, s)
-    if (WEIGHT_BASED_INDICATORS.includes(table_name) && zScore.abs().greaterThan(3)){
-        zScore = this.adjustWeightBasedZScore(zScore, y, l, m, s)
-      }
+    if (WEIGHT_BASED_INDICATORS.includes(table_name) && zScore.abs().greaterThan(3)) {
+      zScore = this.adjustWeightBasedZScore(zScore, y, l, m, s)
+    }
     return zScore.toFixed(2)
   }
 
@@ -277,7 +279,7 @@ export class Observation {
     this.validateT({
       lower: 91, upper: 1856,
       msg: "Range is 3 months to 5 years."
-      })
+    })
     const y = this.validateMeasurement(measurement, 3, 40)
     return await this.getZScore("acfa", y)
   }
@@ -290,7 +292,7 @@ export class Observation {
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
    */
   async bmiForAge(measurement: number) {
-    this.validateT({ lower: 0, upper: 19*365, msg: "Range is birth to 19 years." })
+    this.validateT({ lower: 0, upper: 19 * 365, msg: "Range is birth to 19 years." })
     const y = this.validateMeasurement(measurement, 5, 60)
     return await this.getZScore("bmifa", y)
   }
@@ -317,8 +319,8 @@ export class Observation {
       for children under 2 years. Defaults to false.
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
    */
-  async lengthOrHeightForAge(measurement: number, recumbent: boolean=false) {
-    this.validateT({ lower: 0, upper: 19*365, msg: "Range is birth to 19 years." })
+  async lengthOrHeightForAge(measurement: number, recumbent: boolean = false) {
+    this.validateT({ lower: 0, upper: 19 * 365, msg: "Range is birth to 19 years." })
     let y = this.validateMeasurement(measurement, 10, 200)
     if (this.t.gte(365 * 2) && recumbent) {
       y = y.minus(0.7)
@@ -335,7 +337,7 @@ export class Observation {
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
    */
   async weightForAge(measurement: number) {
-    this.validateT({ lower: 0, upper: 10*365, msg: "Range is birth to 10 years." })
+    this.validateT({ lower: 0, upper: 10 * 365, msg: "Range is birth to 10 years." })
     const y = this.validateMeasurement(measurement, 1, 125)
     return await this.getZScore("wfa", y)
   }
