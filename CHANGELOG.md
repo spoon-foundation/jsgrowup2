@@ -1,6 +1,10 @@
 # Changelog
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+## [1.0.3] - 2023-12-08
+
+### Fixed
+- *Actually* resolve dynamic import issues when this package is bundled with tools
+  such as using rollup.
 
 ## [1.0.2] - 2023-12-07
 
@@ -21,3 +25,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [1.0] - 2023-09-11
 
 - Initial release
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
