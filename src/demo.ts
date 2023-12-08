@@ -1,30 +1,5 @@
 import { Observation, SexSpecification } from "./index.js"
 
-// Import all of our json files explicitly so that treeshakers still include them.
-// (They're imported dynamically in the actual logic.)
-import by_day_acfa from "./by_day_acfa.json"
-import by_day_bmifa from "./by_day_bmifa.json"
-import by_day_hcfa from "./by_day_hcfa.json"
-import by_day_lfa from "./by_day_lfa.json"
-import by_day_wfa from "./by_day_wfa.json"
-import by_day_wfh from "./by_day_wfh.json"
-import by_day_wfl from "./by_day_wfl.json"
-import by_month_bmifa from "./by_month_bmifa.json"
-import by_month_lfa from "./by_month_lfa.json"
-import by_month_wfa from "./by_month_wfa.json"
-
-// Mollify linters
-by_day_acfa
-by_day_bmifa
-by_day_hcfa
-by_day_lfa
-by_day_wfa
-by_day_wfh
-by_day_wfl
-by_month_bmifa
-by_month_lfa
-by_month_wfa
-
 let weight = 5.1
 let length = 55.1
 const ageInDays = 21

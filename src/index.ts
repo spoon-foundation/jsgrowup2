@@ -22,6 +22,46 @@ const WEIGHT_BASED_INDICATORS = [
   "bmifa",
 ]
 
+
+// This helper function replaces earlier approaches that used much more
+// succinct string interpolation for the filenames in these dynamic
+// imports–rollup wasn't properly including the json files in bundles.
+async function getJsonData(type: string, tableName: string) {
+  if (type == "day") {
+    switch (tableName) {
+      case "acfa":
+        return await import("./by_day_acfa.json")
+      case "bmifa":
+        return await import("./by_day_bmifa.json")
+      case "hcfa":
+        return await import("./by_day_hcfa.json")
+      case "lfa":
+        return await import("./by_day_lfa.json")
+      case "wfa":
+        return await import("./by_day_wfa.json")
+      case "wfh":
+        return await import("./by_day_wfh.json")
+      case "wfl":
+        return await import("./by_day_wfl.json")
+      default:
+        throw new Error(`Unexpected type (${type}) and/or tableName (${tableName})`)
+    }
+  }
+  else {
+    switch (tableName) {
+      case "bmifa":
+        return await import("./by_month_bmifa.json")
+      case "lfa":
+        return await import("./by_month_lfa.json")
+      case "wfa":
+        return await import("./by_month_wfa.json")
+      default:
+        throw new Error(`Unexpected type (${type}) and/or tableName (${tableName})`)
+    }
+  }
+}
+
+
 /*
  * Observation of a growth measurement for a single child on a single day.
  * @constructor
@@ -72,9 +112,8 @@ export class Observation {
     // The two by-weight metrics' data are housed in the same place--their t values will be floats.
     let t: Decimal
     let tableIndex: number
-    let modulePath: string
     let isAgeBased = true
-    let data
+    let tableType: string
     if (length == undefined) {
       t = new Decimal(this.t)
       tableIndex = t.floor().toNumber()
@@ -84,12 +123,13 @@ export class Observation {
       isAgeBased = false
     }
     if (!isAgeBased || t.lte(1856)) {
-      data = await import(`./by_day_${tableName}.json`)
+      tableType = "day"
     } else {
       // Must be an age-based metric for an age over 5 years. Round age (in days) to nearest month.
       tableIndex = t.dividedBy(365 / 12).floor().toNumber()
-      data = await import(`./by_month_${tableName}.json`)
+      tableType = "month"
     }
+    const data: { [index: string]: any } = await getJsonData(tableType, tableName)
     const result = data[this.sex][tableIndex]
     if (!result) {
       throw new Error(`t value out of range or not found (${t.toNumber()})`)
