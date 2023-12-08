@@ -1,6 +1,6 @@
 {
   "name": "jsgrowup2",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Calculate z scores of anthropometric measurements based on WHO child growth standards",
   "types": "dist/types/index.d.ts",
   "scripts": {
