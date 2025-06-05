@@ -1,4 +1,4 @@
-import { Decimal } from "decimal.js"
+import { Decimal } from "decimal.js-light"
 
 export const MALE = "male"
 export const FEMALE = "female"
@@ -71,7 +71,7 @@ async function getJsonData(type: string, tableName: string) {
  * @param: {number} ageSpecification.ageInMonths - age in months–can be a real number for greater precision.
  * @param: {Date} ageSpecification.dob - child's date of birth. Requires dateOfObservation as well.
  * @param: {Date} ageSpecification.dateOfObservation - date of the observation. Requires dob as well.
- * 
+ *
  */
 export class Observation {
   t: Decimal  // age in days!
@@ -89,12 +89,12 @@ export class Observation {
     }
     if (age.ageInMonths !== undefined && Number.isFinite(age.ageInMonths)) {
       const daysPerMonth = 365.25 / 12
-      this.t = new Decimal(age.ageInMonths * daysPerMonth).floor()
+      this.t = new Decimal(Math.floor(age.ageInMonths * daysPerMonth))
       return
     }
     if (age.dob && age.dateOfObservation) {
       // Using valueOf() to appease Typescript (https://stackoverflow.com/a/60688789/697143)
-      this.t = new Decimal((age.dateOfObservation.valueOf() - age.dob.valueOf()) / (1000 * 60 * 60 * 24)).round()
+      this.t = new Decimal(Math.round((age.dateOfObservation.valueOf() - age.dob.valueOf()) / (1000 * 60 * 60 * 24)))
       return
     }
     throw new Error(
@@ -116,7 +116,7 @@ export class Observation {
     let tableType: string
     if (length == undefined) {
       t = new Decimal(this.t)
-      tableIndex = t.floor().toNumber()
+      tableIndex = Math.floor(t.toNumber())
     } else {
       t = length
       tableIndex = parseFloat(t.toFixed(2))
@@ -126,7 +126,7 @@ export class Observation {
       tableType = "day"
     } else {
       // Must be an age-based metric for an age over 5 years. Round age (in days) to nearest month.
-      tableIndex = t.dividedBy(365 / 12).floor().toNumber()
+      tableIndex = Math.floor(t.dividedBy(365 / 12).toNumber())
       tableType = "month"
     }
     const data: { [index: string]: any } = await getJsonData(tableType, tableName)
@@ -310,7 +310,7 @@ export class Observation {
 
   /*
    * Return the arm circumference-for-age z-score (aka MUAC).
-   * 
+   *
    * The valid age range is 3 months to 5 years.
    * @param: {number} measurement: mid-upper arm circumference measurement (in cm)
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
@@ -326,7 +326,7 @@ export class Observation {
 
   /*
    * Return the BMI (body mass index)-for-age z-score.
-   * 
+   *
    * The valid age range is birth to 19 years.
    * @param: {number} measurement: BMI value as a number
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
@@ -339,7 +339,7 @@ export class Observation {
 
   /*
    * Return the head circumference-for-age z-score.
-   * 
+   *
    * The valid age range is birth to 5 years.
    * @param: {number} head circumference measurement (in cm)
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
@@ -352,7 +352,7 @@ export class Observation {
 
   /*
    * Return the length/height-for-age z-score.
-   * 
+   *
    * The valid age range is birth to 19 years.
    * @param: {number} length or height measurement (in cm)
    * @param: {boolean} recumbent – was the measurement taken with child lying down? Ignored
@@ -371,7 +371,7 @@ export class Observation {
 
   /*
    *Return the weight-for-age z-score.
-   * 
+   *
    * The valid age range is birth to 10 years.
    * @param: {number} weight measurement (in kg)
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
@@ -384,7 +384,7 @@ export class Observation {
 
   /*
    *Return the weight-for-height z-score.
-   * 
+   *
    * The valid age range is 2 to 5 years (though not enforced).
    * @param: {number} weight measurement (in kg)
    * @param: {number} height measurement (in cm)
@@ -400,7 +400,7 @@ export class Observation {
 
   /*
    *Return the weight-for-length z-score.
-   * 
+   *
    * The valid age range is birth to 2 years (though not enforced).
    * @param: {number} weight measurement (in kg)
    * @param: {number} length measurement (in cm)

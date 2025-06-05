@@ -1,5 +1,5 @@
 import {describe, expect, test} from '@jest/globals';
-import { Decimal } from "decimal.js"
+import { Decimal } from "decimal.js-light"
 
 import { Observation } from "../index"
 
@@ -209,14 +209,15 @@ describe("Length/height for Age", () => {
     }
     const observation = new Observation(row.sex, ageSpec)
     const receivedZScore = await observation.lengthOrHeightForAge(y, row.lOrH == "l")
-    const delta = new Decimal(receivedZScore)
+    const delta = Math.floor(new Decimal(receivedZScore)
       .minus(expectedZScore)
       .absoluteValue()
       .times(10)
-      .floor()
+      .toNumber())
+
     // So now delta is an integer that we want to be less than 1.
     // (That is, representing a difference of less than 0.1)
-    expect(delta.lte(1)).toBeTruthy()
+    expect(delta <= 1).toBeTruthy()
   }
 
   function dataFilter2 (row: any) {
