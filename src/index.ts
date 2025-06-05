@@ -22,7 +22,6 @@ const WEIGHT_BASED_INDICATORS = [
   "bmifa",
 ]
 
-
 // This helper function replaces earlier approaches that used much more
 // succinct string interpolation for the filenames in these dynamic
 // imports–rollup wasn't properly including the json files in bundles.
@@ -30,19 +29,19 @@ async function getJsonData(type: string, tableName: string) {
   if (type == "day") {
     switch (tableName) {
       case "acfa":
-        return await import("./by_day_acfa.json")
+        return await import("./by_day_acfa.json", { with: { type: "json" } })
       case "bmifa":
-        return await import("./by_day_bmifa.json")
+        return await import("./by_day_bmifa.json", { with: { type: "json" } })
       case "hcfa":
-        return await import("./by_day_hcfa.json")
+        return await import("./by_day_hcfa.json", { with: { type: "json" } })
       case "lfa":
-        return await import("./by_day_lfa.json")
+        return await import("./by_day_lfa.json", { with: { type: "json" } })
       case "wfa":
-        return await import("./by_day_wfa.json")
+        return await import("./by_day_wfa.json", { with: { type: "json" } })
       case "wfh":
-        return await import("./by_day_wfh.json")
+        return await import("./by_day_wfh.json", { with: { type: "json" } })
       case "wfl":
-        return await import("./by_day_wfl.json")
+        return await import("./by_day_wfl.json", { with: { type: "json" } })
       default:
         throw new Error(`Unexpected type (${type}) and/or tableName (${tableName})`)
     }
@@ -50,11 +49,11 @@ async function getJsonData(type: string, tableName: string) {
   else {
     switch (tableName) {
       case "bmifa":
-        return await import("./by_month_bmifa.json")
+        return await import("./by_month_bmifa.json", { with: { type: "json" } })
       case "lfa":
-        return await import("./by_month_lfa.json")
+        return await import("./by_month_lfa.json", { with: { type: "json" } })
       case "wfa":
-        return await import("./by_month_wfa.json")
+        return await import("./by_month_wfa.json", { with: { type: "json" } })
       default:
         throw new Error(`Unexpected type (${type}) and/or tableName (${tableName})`)
     }
@@ -129,7 +128,7 @@ export class Observation {
       tableIndex = Math.floor(t.dividedBy(365 / 12).toNumber())
       tableType = "month"
     }
-    const data: { [index: string]: any } = await getJsonData(tableType, tableName)
+    const data: { [index: string]: { [index: string]: { l: number, m: number, s: number } }} = await getJsonData(tableType, tableName)
     const result = data[this.sex][tableIndex]
     if (!result) {
       throw new Error(`t value out of range or not found (${t.toNumber()})`)
