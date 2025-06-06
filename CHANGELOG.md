@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4] - 2025-06-05
+
+### Changed
+- Replace decimal.js with decimal.js-light, to shave off some KBs.
+- Update dynamic import syntax to allow tests to run in apps using this library
+- Fixed some linting errors
+
 ## [1.0.3] - 2023-12-08
 
 ### Fixed
@@ -11,7 +18,7 @@
 ### Fixed
 - Attempt to resolve dynamic import issues when this package is bundled with tools
   such as using rollup. This involved refactoring LMS data to be contained in JSON
-  files rather than Typescript ones, and some fiddling with package.json settings. 
+  files rather than Typescript ones, and some fiddling with package.json settings.
 
 ## [1.0.1] - 2023-09-19
 
