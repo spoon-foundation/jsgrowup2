@@ -1,5 +1,6 @@
-import pkg from "decimal.js-light"
-const { Decimal } = pkg
+import * as DecimalModule from "decimal.js-light"
+// Handle both ESM and CommonJS exports
+const Decimal = (DecimalModule as any)?.default || DecimalModule
 
 export const MALE = "male"
 export const FEMALE = "female"
