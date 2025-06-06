@@ -106,7 +106,7 @@ export class Observation {
   // tableName: one of our abbreviated names for the growth standards
   // y: the measurement in question (float or Decimal)
   // t: length/height measurement in cm–only if calculating weight-for-length/height,
-  protected async getBoxCoxVariables(tableName: string, length?: Decimal) {
+  protected async getBoxCoxVariables(tableName: string, length?: Decimal): Promise<{ l: Decimal, m: Decimal, s: Decimal }> {
     // We have by-day data for all age-related metrics up to 5 years of age.
     // The two by-weight metrics' data are housed in the same place--their t values will be floats.
     let t: Decimal
@@ -128,14 +128,17 @@ export class Observation {
       tableIndex = Math.floor(t.dividedBy(365 / 12).toNumber())
       tableType = "month"
     }
-    const data: { [index: string]: { [index: string]: { l: number, m: number, s: number } }} = await getJsonData(tableType, tableName)
+    const importResult = await getJsonData(tableType, tableName)
+    const data: { [index: string]: { [index: string]: { l: string, m: string, s: string } }} = (importResult as any).default || importResult
     const result = data[this.sex][tableIndex]
     if (!result) {
       throw new Error(`t value out of range or not found (${t.toNumber()})`)
     }
-    const lms = ["l", "m", "s"]
-    lms.forEach(char => result[char] = new Decimal(result[char]))
-    return result
+    return {
+      l: new Decimal(result["l"]),
+      m: new Decimal(result["m"]),
+      s: new Decimal(result["s"]),
+    }
   }
 
   /*

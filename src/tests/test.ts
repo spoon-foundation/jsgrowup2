@@ -1,7 +1,29 @@
 import {describe, expect, test} from '@jest/globals';
 import { Decimal } from "decimal.js-light"
 
-import { Observation } from "../index"
+import { Observation, SexSpecification } from "../index"
+
+interface DataRow {
+  armCircumference: number | ""
+  headCircumference: number | ""
+  bmi: number | ""
+  weight: number | ""
+  height: number | ""
+  lOrH: string | ""
+  acfaZ: number | ""
+  bmifaZ: number | ""
+  bmifaZ2: number | ""
+  hcfaZ: number | ""
+  wfaZ: number | ""
+  lfaZ: number | ""
+  lfaZ2: number | ""
+  wflZ: number | ""
+  sex: SexSpecification
+  dob: Date
+  dateOfObservation: Date
+  ageInDays: number
+  ageInMonths: number
+}
 
 // This file is derived from the R implementation of iGrowup. We're trusting
 // its z score values. It's a CSV with erratically named columns, so we
@@ -21,7 +43,7 @@ let filteredData: Array<object>
 // Return a function that can be passed to Array.filter to winnow down our dataset
 // to be appropriate for a given test.
 function getDataFilter(zFieldName: string, measurementName: string, ageInMonthsMin: number, ageInMonthsMax: number) {
-  return function (row: any) {
+  return function (row: { zFieldName: string, measurementName: string, ageInMonths: number }) {
     if (row[zFieldName] == "") {
       return false
     }
@@ -38,9 +60,9 @@ function getDataFilter(zFieldName: string, measurementName: string, ageInMonthsM
 
 describe("Arm Circumference for Age", () => {
 
-  async function testArmCircumferenceForAge(row: any) {
-    const y = row.armCircumference
-    const expectedZScore = row.acfaZ
+  async function testArmCircumferenceForAge(row: DataRow) {
+    const y = row.armCircumference as number
+    const expectedZScore = row.acfaZ as number
 
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.armCircumferenceForAge(y)
@@ -60,9 +82,9 @@ describe("Arm Circumference for Age", () => {
 
 describe("BMI for Age", () => {
 
-  async function testBmiForAge(row: any) {
-    const y = row.bmi
-    const expectedZScore = row.bmifaZ
+  async function testBmiForAge(row: DataRow) {
+    const y = row.bmi as number
+    const expectedZScore = row.bmifaZ as number
 
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.bmiForAge(y)
@@ -79,15 +101,15 @@ describe("BMI for Age", () => {
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('bmifa, WHO data, row $id', testBmiForAge)
 
-  async function testBmiForAge2(row: any) {
-    const y = row.bmi
+  async function testBmiForAge2(row: DataRow) {
+    const y = row.bmi as number
     const ageSpec = {
       dob: new Date(row.dob),
       dateOfObservation: new Date(row.dateOfObservation),
     }
     const observation = new Observation(row.sex, ageSpec)
     const receivedZScore = await observation.bmiForAge(y)
-    const expectedZScore = row.bmifaZ == "" ? row.bmifaZ2 : row.bmifaZ
+    const expectedZScore = (row.bmifaZ === "" ? row.bmifaZ2 : row.bmifaZ) as number
     const delta = Math.abs(parseFloat(receivedZScore) - expectedZScore)
     expect(delta).toBeLessThanOrEqual(DELTA)
   }
@@ -98,9 +120,9 @@ describe("BMI for Age", () => {
 
 describe("Head Circumference for Age", () => {
 
-  async function testHeadCircumferenceForAge(row: any) {
-    const y = row.headCircumference
-    const expectedZScore = row.hcfaZ
+  async function testHeadCircumferenceForAge(row: DataRow) {
+    const y = row.headCircumference as number
+    const expectedZScore = row.hcfaZ as number
 
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.headCircumferenceForAge(y)
@@ -117,9 +139,9 @@ describe("Head Circumference for Age", () => {
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('hcfa, WHO data, row $id', testHeadCircumferenceForAge)
 
-  async function testHeadCircumferenceForAge2(row: any) {
-    const y = row.headCircumference
-    const expectedZScore = row.hcfaZ
+  async function testHeadCircumferenceForAge2(row: DataRow) {
+    const y = row.headCircumference as number
+    const expectedZScore = row.hcfaZ as number
 
     const ageSpec = {
       dob: new Date(row.dob),
@@ -137,9 +159,9 @@ describe("Head Circumference for Age", () => {
 
 describe("Weight for Age", () => {
 
-  async function testWeightForAge(row: any) {
-    const y = row.weight
-    const expectedZScore = row.wfaZ
+  async function testWeightForAge(row: DataRow) {
+    const y = row.weight as number
+    const expectedZScore = row.wfaZ as number
 
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.weightForAge(y)
@@ -159,9 +181,9 @@ describe("Weight for Age", () => {
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('wfa, WHO data, row $id', testWeightForAge)
 
-  async function testWeightForAge2(row: any) {
-    const y = row.weight
-    const expectedZScore = row.wfaZ
+  async function testWeightForAge2(row: DataRow) {
+    const y = row.weight as number
+    const expectedZScore = row.wfaZ as number
 
     const ageSpec = {
       dob: new Date(row.dob),
@@ -179,9 +201,9 @@ describe("Weight for Age", () => {
 
 describe("Length/height for Age", () => {
 
-  async function testLengthOrHeightForAge(row: any) {
-    const y = row.height
-    const expectedZScore = row.lfaZ
+  async function testLengthOrHeightForAge(row: DataRow) {
+    const y = row.height as number
+    const expectedZScore = row.lfaZ as number
 
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.lengthOrHeightForAge(y, row.lOrH == "l")
@@ -199,9 +221,9 @@ describe("Length/height for Age", () => {
   filteredData = WHO_DATA.filter(dataFilter)
   test.each(filteredData)('lfa, WHO data, row $id', testLengthOrHeightForAge)
 
-  async function testLengthOrHeightForAge2(row: any) {
-    const y = row.height
-    const expectedZScore = row.lfaZ != "" ? row.lfaZ : row.lfaZ2
+  async function testLengthOrHeightForAge2(row: DataRow) {
+    const y = row.height as number
+    const expectedZScore = row.lfaZ !== "" ? row.lfaZ : row.lfaZ2
 
     const ageSpec = {
       dob: new Date(row.dob),
@@ -220,8 +242,8 @@ describe("Length/height for Age", () => {
     expect(delta <= 1).toBeTruthy()
   }
 
-  function dataFilter2 (row: any) {
-    if (row["lfaZ"] == "" && row["lfaZ2"] == "") {
+  function dataFilter2 (row: DataRow) {
+    if (row["lfaZ"] === "" && row["lfaZ2"] === "") {
       return false
     }
     return true
@@ -234,10 +256,10 @@ describe("Length/height for Age", () => {
 
 describe("Weight for Height", () => {
 
-  async function testWeightForHeight(row: any) {
-    const weight = row.weight
-    const height = row.height
-    const expectedZScore = row.wflZ
+  async function testWeightForHeight(row: DataRow) {
+    const weight = row.weight as number
+    const height = row.height as number
+    const expectedZScore = row.wflZ as number
 
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.weightForHeight(weight, height)
@@ -250,10 +272,10 @@ describe("Weight for Height", () => {
     expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
-  async function testWeightForHeight2(row: any) {
-    const weight = row.weight
-    const height = row.height
-    const expectedZScore = row.wflZ
+  async function testWeightForHeight2(row: DataRow) {
+    const weight = row.weight as number
+    const height = row.height as number
+    const expectedZScore = row.wflZ as number
 
     const ageSpec = {
       dob: new Date(row.dob),
@@ -265,8 +287,8 @@ describe("Weight for Height", () => {
     expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
-  function dataFilter (row: any) {
-    if (row["wflZ"] == "") {
+  function dataFilter (row: DataRow) {
+    if (row["wflZ"] === "") {
       return false
     }
     if (row.lOrH != "h") {
@@ -275,10 +297,10 @@ describe("Weight for Height", () => {
     return true
   }
 
-  function dataFilter2 (row: any) {
+  function dataFilter2 (row: DataRow) {
     // Filter SPOON data differently; there's no recumbent flag, so make
     // sure child is over 2.
-    if (row["wflZ"] == "") {
+    if (row["wflZ"] === "") {
       return false
     }
     if (!row.ageInMonths || row.ageInMonths < 24) {
@@ -296,10 +318,10 @@ describe("Weight for Height", () => {
 
 describe("Weight for Length", () => {
 
-  async function testWeightForLength(row: any) {
-    const weight = row.weight
-    const height = row.height
-    const expectedZScore = row.wflZ
+  async function testWeightForLength(row: DataRow) {
+    const weight = row.weight as number
+    const height = row.height as number
+    const expectedZScore = row.wflZ as number
 
     const obsFromAgeMonths = new Observation(row.sex, { ageInMonths: row.ageInMonths })
     let receivedZScore = await obsFromAgeMonths.weightForLength(weight, height)
@@ -312,10 +334,10 @@ describe("Weight for Length", () => {
     expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
-  async function testWeightForLength2(row: any) {
-    const weight = row.weight
-    const height = row.height
-    const expectedZScore = row.wflZ
+  async function testWeightForLength2(row: DataRow) {
+    const weight = row.weight as number
+    const height = row.height as number
+    const expectedZScore = row.wflZ as number
 
     const ageSpec = {
       dob: new Date(row.dob),
@@ -327,27 +349,27 @@ describe("Weight for Length", () => {
     expect(delta).toBeLessThanOrEqual(DELTA)
   }
 
-  function dataFilter (row: any) {
-    if (row["wflZ"] == "") {
+  function dataFilter (row: DataRow) {
+    if (row["wflZ"] === "") {
       return false
     }
     if (row.lOrH != "l") {
       return false
     }
-    if (row.height > 110) {
+    if (row.height as number > 110) {
       return false
     }
     return true
   }
 
-  function dataFilter2 (row: any) {
-    if (row["wflZ"] == "") {
+  function dataFilter2 (row: DataRow) {
+    if (row["wflZ"] === "") {
       return false
     }
     if (!row.ageInMonths || row.ageInMonths > 24) {
       return false
     }
-    if (row.height > 110) {
+    if (row.height as number > 110) {
       return false
     }
     return true
