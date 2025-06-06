@@ -108,7 +108,8 @@ output_input = (
     )
 
 template = """
-import { Decimal } from "decimal.js-light";
+import pkg from'"
+const { Decimal } = pkg
 
 export const DATA = {
 """

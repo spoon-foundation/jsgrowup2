@@ -1,5 +1,6 @@
 import {describe, expect, test} from '@jest/globals';
-import { Decimal } from "decimal.js-light"
+import pkg from "decimal.js-light"
+const { Decimal } = pkg
 
 import { Observation, SexSpecification } from "../index"
 

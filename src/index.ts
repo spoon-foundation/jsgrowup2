@@ -1,4 +1,5 @@
-import { Decimal } from "decimal.js-light"
+import pkg from "decimal.js-light"
+const { Decimal } = pkg
 
 export const MALE = "male"
 export const FEMALE = "female"
@@ -73,7 +74,7 @@ async function getJsonData(type: string, tableName: string) {
  *
  */
 export class Observation {
-  t: Decimal  // age in days!
+  t: InstanceType<typeof Decimal>  // age in days!
   sex: SexSpecification
 
   // Constructor sets sex and "t": age in days at time of observation
@@ -106,10 +107,10 @@ export class Observation {
   // tableName: one of our abbreviated names for the growth standards
   // y: the measurement in question (float or Decimal)
   // t: length/height measurement in cm–only if calculating weight-for-length/height,
-  protected async getBoxCoxVariables(tableName: string, length?: Decimal): Promise<{ l: Decimal, m: Decimal, s: Decimal }> {
+  protected async getBoxCoxVariables(tableName: string, length?: InstanceType<typeof Decimal>): Promise<{ l: InstanceType<typeof Decimal>, m: InstanceType<typeof Decimal>, s: InstanceType<typeof Decimal> }> {
     // We have by-day data for all age-related metrics up to 5 years of age.
     // The two by-weight metrics' data are housed in the same place--their t values will be floats.
-    let t: Decimal
+    let t: InstanceType<typeof Decimal>
     let tableIndex: number
     let isAgeBased = true
     let tableType: string
@@ -166,7 +167,7 @@ export class Observation {
   *    The returned value of this method is computed based on the formula
   *    found in that chapter. It will be a Decimal.
   */
-  protected getFirstPassZScore(y: Decimal, l: Decimal, m: Decimal, s: Decimal) {
+  protected getFirstPassZScore(y: InstanceType<typeof Decimal>, l: InstanceType<typeof Decimal>, m: InstanceType<typeof Decimal>, s: InstanceType<typeof Decimal>) {
     // Formula from Chapter 7:
     //
     //           [y/M(t)]^L(t) - 1
@@ -186,7 +187,7 @@ export class Observation {
 
   See Chapter 7 of "Computation of centiles and z-scores" referenced above for the formulae.
   */
-  protected adjustWeightBasedZScore(zScore: Decimal, y: Decimal, l: Decimal, m: Decimal, s: Decimal) {
+  protected adjustWeightBasedZScore(zScore: InstanceType<typeof Decimal>, y: InstanceType<typeof Decimal>, l: InstanceType<typeof Decimal>, m: InstanceType<typeof Decimal>, s: InstanceType<typeof Decimal>) {
     const one = new Decimal(1)
     const exp = one.dividedBy(l)
     if (zScore.greaterThan(3)) {
@@ -235,7 +236,7 @@ export class Observation {
   Returns:
       null
   */
-  protected validateT(args: { t?: Decimal, lower?: number, upper?: number, msg?: string }) {
+  protected validateT(args: { t?: InstanceType<typeof Decimal>, lower?: number, upper?: number, msg?: string }) {
     let { t, msg } = args
     const { lower, upper } = args
     msg = msg ? msg : `Range is ${lower} to ${upper}`
@@ -268,7 +269,7 @@ export class Observation {
   @returns {Decimal} measurement value
   */
   protected validateMeasurement(measurement: number, lower: number, upper: number, msg?: string) {
-    let y: Decimal
+    let y: InstanceType<typeof Decimal>
     if (!msg) {
       msg = `Range is ${lower} to ${upper}`
     }
@@ -301,7 +302,7 @@ export class Observation {
   * @returns {string} z score as a string with rounded to two decimals
   * Throws an error for exceptional values of y or t.
   */
-  protected async getZScore(table_name: string, y: Decimal, t?: Decimal): Promise<string> {
+  protected async getZScore(table_name: string, y: InstanceType<typeof Decimal>, t?: InstanceType<typeof Decimal>): Promise<string> {
     const { l, m, s } = await this.getBoxCoxVariables(table_name, t)
     let zScore = this.getFirstPassZScore(y, l, m, s)
     if (WEIGHT_BASED_INDICATORS.includes(table_name) && zScore.abs().greaterThan(3)) {
