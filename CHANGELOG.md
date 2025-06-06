@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.6] - 2025-06-06
+
+### Fixed
+- One more attempt at satisfying all build scenarios with our approach to imports.
+
 ## [1.0.5] - 2025-06-06
 
 ### Changed
