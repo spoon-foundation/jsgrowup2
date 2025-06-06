@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.5] - 2025-06-06
+
+### Changed
+- Switch imports of decimal.js-light, which is CommonJS only.
+
 ## [1.0.4] - 2025-06-05
 
 ### Changed
