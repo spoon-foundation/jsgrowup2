@@ -359,15 +359,22 @@ export class Observation {
    *
    * The valid age range is birth to 19 years.
    * @param: {number} length or height measurement (in cm)
-   * @param: {boolean} recumbent – was the measurement taken with child lying down? Ignored
-      for children under 2 years. Defaults to false.
+   * @param: {boolean} recumbent – was the measurement taken with child lying down?
+   *   WHO standards use recumbent length for children under 2 and standing height for 2+.
+   *   If the measurement method doesn't match the standard for the child's age, an
+   *   adjustment of 0.7 cm is applied (added for standing <2y, subtracted for recumbent 2+y).
+   *   Defaults to false (standing).
    * @returns {Promise} resolving to a string representing the z score rounded to two decimals.
    */
   async lengthOrHeightForAge(measurement: number, recumbent: boolean = false) {
     this.validateT({ lower: 0, upper: 19 * 365, msg: "Range is birth to 19 years." })
     let y = this.validateMeasurement(measurement, 10, 200)
     if (this.t.gte(365 * 2) && recumbent) {
+      // Child 2+ years measured lying down: subtract 0.7 to convert to height
       y = y.minus(0.7)
+    } else if (this.t.lt(365 * 2) && !recumbent) {
+      // Child under 2 years measured standing: add 0.7 to convert to length
+      y = y.plus(0.7)
     }
 
     return await this.getZScore("lfa", y)

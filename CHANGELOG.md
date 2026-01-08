@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.7] - 2026-01-08
+
+### Fixed
+- Properly adjust height measurements for children under 2 years. All tests now pass.
+
 ## [1.0.6] - 2025-06-06
 
 ### Fixed

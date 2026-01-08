@@ -231,7 +231,12 @@ describe("Length/height for Age", () => {
       dateOfObservation: new Date(row.dateOfObservation),
     }
     const observation = new Observation(row.sex, ageSpec)
-    const receivedZScore = await observation.lengthOrHeightForAge(y, row.lOrH == "l")
+    // If lOrH is not specified, assume appropriate measurement for age
+    // (recumbent/length for <2 years, standing/height for 2+ years)
+    // Use the observation's calculated age (t) to match the library's threshold
+    const twoYearsInDays = 365 * 2
+    const recumbent = row.lOrH !== undefined ? row.lOrH == "l" : observation.t.toNumber() < twoYearsInDays
+    const receivedZScore = await observation.lengthOrHeightForAge(y, recumbent)
     const delta = Math.floor(new Decimal(receivedZScore)
       .minus(expectedZScore)
       .absoluteValue()
