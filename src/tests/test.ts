@@ -37,7 +37,7 @@ import { DATA as WHO_DATA } from "./data_who"
 import { DATA as SPOON_DATA } from "./data_spoon"
 
 // How close do we want our results to match other's?
-const DELTA = 0.1
+const DELTA = 0.09
 
 let filteredData: Array<object>
 

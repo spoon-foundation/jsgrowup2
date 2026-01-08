@@ -22,6 +22,7 @@ const WEIGHT_BASED_INDICATORS = [
   "wfl",
   "wfh",
   "bmifa",
+  "acfa",
 ]
 
 // This helper function replaces earlier approaches that used much more
